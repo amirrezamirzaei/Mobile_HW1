@@ -3,15 +3,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="100dp">
+    android:layout_height="100dp"
+    android:layout_margin="5dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ssss"/>
+        android:layout_height="100dp"
+        android:background="@drawable/background_border"
+        >
+
         <ImageView
             android:id="@+id/imageView2"
             android:layout_width="78dp"
@@ -20,11 +20,11 @@
             android:layout_alignParentBottom="true"
             android:layout_marginStart="7dp"
             android:layout_marginBottom="6dp"
-            android:layout_weight="1"
-             />
+            android:layout_weight="1" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/name"
+            android:layout_width="134dp"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_marginStart="17dp"
@@ -33,38 +33,45 @@
             android:text="BTC | Bitcoin" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/price"
+            android:layout_width="95dp"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="239dp"
+            android:layout_marginStart="204dp"
             android:layout_marginTop="9dp"
-            android:layout_marginEnd="36dp"
+            android:layout_marginEnd="9dp"
             android:layout_toEndOf="@+id/imageView2"
             android:text="11236$" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/percentHourDay"
+            android:layout_width="131dp"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginStart="17dp"
-            android:layout_marginEnd="216dp"
-            android:layout_marginBottom="17dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="161dp"
+            android:layout_marginBottom="11dp"
             android:layout_toEndOf="@+id/imageView2"
             android:text="1h:0%    1d:-2%" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/percentWeek"
+            android:layout_width="98dp"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginStart="-194dp"
-            android:layout_marginEnd="44dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="10dp"
             android:text="7d:2%" />
 
+
+
     </RelativeLayout>
+
+
 
 
 </LinearLayout>

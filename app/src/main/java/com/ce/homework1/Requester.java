@@ -35,17 +35,17 @@ public class Requester {
         }
     }
 
-    public Response RequestCoinsLogo(ArrayList<String> allCoinId){
+    public Response RequestCoinsLogo(ArrayList<Integer> allCoinId){
         OkHttpClient okHttpClient = new OkHttpClient();
         StringBuilder query = new StringBuilder("");
         for(int i=allCoinId.size()-1 ;i>-1;i--){
             System.out.println(allCoinId.get(i));
-            query.append(allCoinId.get(i));
+            query.append(String.valueOf(allCoinId.get(i)));
             if(i!=0)
                 query.append(",");
         }
         System.out.println(query);
-        HttpUrl.Builder urlBuilder = HttpUrl.parse("https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?id=".concat(String.valueOf(query)))
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?id=".concat(String.valueOf(query)).concat("&aux=logo"))
                 .newBuilder();
         System.out.println(urlBuilder.toString());
         String url = urlBuilder.build().toString();
