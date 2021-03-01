@@ -44,7 +44,6 @@ public class Requester {
             if(i!=0)
                 query.append(",");
         }
-        System.out.println(query);
         HttpUrl.Builder urlBuilder = HttpUrl.parse("https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?id=".concat(String.valueOf(query)).concat("&aux=logo"))
                 .newBuilder();
         System.out.println(urlBuilder.toString());
@@ -53,10 +52,8 @@ public class Requester {
                 .addHeader("X-CMC_PRO_API_KEY", COIN_MARKET_API_KEY)
                 .build();
         try {
-            System.out.println("salam");
             return okHttpClient.newCall(request).execute();
         } catch (IOException e) {
-            System.out.println("bye");
             e.printStackTrace();
             return null;
         }

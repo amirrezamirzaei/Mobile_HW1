@@ -28,7 +28,7 @@ public class ThreadGenerator {
                 Response response = Requester.getInstance().RequestCoinName(start, limit);
                 try {
                     String coinsListString = response.body().string();
-                    Log.d("kurogiri",coinsListString);
+                    Log.d("thread_coin_getter",coinsListString);
                     JSONObject obj = null;
                     try {
                         obj = new JSONObject(coinsListString);
@@ -55,15 +55,15 @@ public class ThreadGenerator {
 
                         response = Requester.getInstance().RequestCoinsLogo(allID);   // requesting coin logos
                         String allInfo = response.body().string();
-                        Log.d("tit",allInfo);
+                        Log.d("thread_coin_getter",allInfo);
                         try {
                             obj = new JSONObject(allInfo).getJSONObject("data");
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        Log.d("tittit",obj.toString());
+                        Log.d("thread_coin_getter",obj.toString());
                         try {
-                            Log.d("tittit",  obj.getJSONObject("1").getString("logo"));
+                            Log.d("thread_coin_getter",  obj.getJSONObject("1").getString("logo"));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -73,7 +73,7 @@ public class ThreadGenerator {
 
 
                         MainActivity.setCoinsToBeAdded(coins);
-                        Log.d("kurogiri","finish");
+                        Log.d("thread_coin_getter","finish");
                         Message message = new Message();
                         message.what = MessageResult.SUCCESSFUL;
                         handler.sendMessage(message);
@@ -83,6 +83,8 @@ public class ThreadGenerator {
 
                 } catch (IOException e) {
                     e.printStackTrace();
+                } catch (NullPointerException e){
+                    System.out.println("no connection");
                 }
             }
         });

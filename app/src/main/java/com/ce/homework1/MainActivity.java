@@ -3,6 +3,8 @@ package com.ce.homework1;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 
 
@@ -21,10 +23,6 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.ce.homework1.model.Coin;
 import com.ce.homework1.model.MessageResult;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -58,10 +56,12 @@ public class MainActivity extends Activity {
             }
         };
 
-        if (true) {   // connected to internet
+        if (isNetworkAvailable()) {   // connected to internet
             getCoins();
-        } else {/*TODO if net isn't connected*/}
-
+        } else {
+            Toast.makeText(this,"Error: you aren't connected to internet",Toast.LENGTH_SHORT).show();
+            /*TODO update coins from database you only need to get coin from database and call setcoinstobeadded*/
+        }
     }
 
     public void addCoinToView() {
@@ -79,10 +79,12 @@ public class MainActivity extends Activity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Glide.with(getBaseContext()).load(coin.getImageUrl()).into(logo);
+                            Glide.with(getBaseContext()).load(coin.getImageUrl()+"lll").error(
+                                    Glide.with(getBaseContext()).load(R.drawable.no_connection)
+                            ).placeholder(R.drawable.giphy).into(logo);
                         }
                     });
-                    price.setText(String.format("%.03f", coin.getPrice()+"$"));
+                    price.setText(String.format("%.03f", coin.getPrice())+"$");
                     name.setText(coin.getName() + " | " + coin.getSymbol());
                     percentDayHour.setText("1h:" + String.format("%.02f", coin.getPercentChangeHour()) + "%  " + "1D:" + String.format("%.02f", coin.getPercentChangeDay()) + "%");
                     percentWeek.setText("7D:" + String.format("%.02f", coin.getPercentChangeWeek()) + "%");
@@ -113,12 +115,21 @@ public class MainActivity extends Activity {
     }
 
     public void update(View view) {
-        if(canUpdate){
+        if(canUpdate && isNetworkAvailable()){
             canUpdate = false;
             getCoins();
+        }else if(isNetworkAvailable()==false){
+            Toast.makeText(this,"Error: you aren't connected to internet",Toast.LENGTH_SHORT).show();
         }else{
             Toast.makeText(this,"Error: please wait before requesting updates",Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     String sample1 = "{\"status\":{\"timestamp\":\"2021-02-27T17:23:44.031Z\",\"error_code\":0,\"error_message\":null,\"elapsed\":16,\"credit_count\":1,\"notice\":null,\"total_count\":4197},\"data\":[{\"id\":1,\"name\":\"Bitcoin\",\"symbol\":\"BTC\",\"slug\":\"bitcoin\",\"num_market_pairs\":9777,\"date_added\":\"2013-04-28T00:00:00.000Z\",\"tags\":[\"mineable\",\"pow\",\"sha-256\",\"store-of-value\",\"state-channels\",\"coinbase-ventures-portfolio\",\"three-arrows-capital-portfolio\",\"polychain-capital-portfolio\"],\"max_supply\":21000000,\"circulating_supply\":18640337,\"total_supply\":18640337,\"platform\":null,\"cmc_rank\":1,\"last_updated\":\"2021-02-27T17:22:02.000Z\",\"quote\":{\"USD\":{\"price\":47142.33836536657,\"volume_24h\":49232496935.616,\"percent_change_1h\":-0.11771834,\"percent_change_24h\":-1.47838687,\"percent_change_7d\":-16.53731833,\"percent_change_30d\":47.38553034,\"market_cap\":878749074098.462,\"last_updated\":\"2021-02-27T17:22:02.000Z\"}}},{\"id\":1027,\"name\":\"Ethereum\",\"symbol\":\"ETH\",\"slug\":\"ethereum\",\"num_market_pairs\":6057,\"date_added\":\"2015-08-07T00:00:00.000Z\",\"tags\":[\"mineable\",\"pow\",\"smart-contracts\",\"coinbase-ventures-portfolio\",\"three-arrows-capital-portfolio\",\"polychain-capital-portfolio\"],\"max_supply\":null,\"circulating_supply\":114845254.249,\"total_supply\":114845254.249,\"platform\":null,\"cmc_rank\":2,\"last_updated\":\"2021-02-27T17:22:02.000Z\",\"quote\":{\"USD\":{\"price\":1481.03273875031,\"volume_24h\":30390418791.21968,\"percent_change_1h\":0.28993843,\"percent_change_24h\":-3.8196045,\"percent_change_7d\":-25.71130276,\"percent_change_30d\":10.75762384,\"market_cap\":170089581432.87216,\"last_updated\":\"2021-02-27T17:22:02.000Z\"}}}]}";
