@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.ce.homework1.model.Candle;
 import com.ce.homework1.model.Coin;
 import com.ce.homework1.model.MessageResult;
 
@@ -15,6 +16,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import java.util.Date;
 import java.util.logging.LogRecord;
 
 import okhttp3.Response;
@@ -74,6 +76,55 @@ public class ThreadGenerator {
 
                         MainActivity.setCoinsToBeAdded(coins);
                         Log.d("thread_coin_getter","finish");
+                        Message message = new Message();
+                        message.what = MessageResult.SUCCESSFUL;
+                        handler.sendMessage(message);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e){
+                    System.out.println("no connection");
+                }
+            }
+        });
+    }
+
+
+
+    public static Thread getCoinDetail(Coin coin, CoinActivity.Range range, String startDate, Handler handler){
+        return new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("ENTER", "getCoinDetail");
+                Response response = Requester.getInstance().RequestCoinDetail(coin, range, startDate);
+                System.out.println(response);
+                try {
+                    String coinsListString = response.body().string();
+                    Log.d("COIN_DETAIL_BODY",coinsListString);
+//                    JSONObject obj = null;
+                    JSONArray candlesList = null;
+                    try {
+                        candlesList = new JSONArray(coinsListString);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+//                        JSONArray candlesList = obj.getJSONArray("");
+                        ArrayList<Candle> candles = new ArrayList<>();
+                        for(int i=0;i<candlesList.length();i++){
+                            JSONObject coinJson = candlesList.getJSONObject(i);
+                            double price_high = coinJson.getDouble("price_high");
+                            double price_low = coinJson.getDouble("price_low");
+                            double price_open = coinJson.getDouble("price_open");
+                            double price_close = coinJson.getDouble("price_close");
+                            candles.add(new Candle(price_high, price_low, price_open, price_close));
+                        }
+
+                        CoinActivity.setCandlesToBeAdded(candles);
+                        Log.d("thread_candle_getter","finish");
                         Message message = new Message();
                         message.what = MessageResult.SUCCESSFUL;
                         handler.sendMessage(message);
