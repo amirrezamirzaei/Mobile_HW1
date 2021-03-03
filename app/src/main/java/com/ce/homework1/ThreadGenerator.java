@@ -8,6 +8,7 @@ import android.util.Log;
 import com.ce.homework1.model.Candle;
 import com.ce.homework1.model.Coin;
 import com.ce.homework1.model.MessageResult;
+import com.github.mikephil.charting.data.CandleEntry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -108,12 +109,15 @@ public class ThreadGenerator {
                     JSONArray candlesList = null;
                     try {
                         candlesList = new JSONArray(coinsListString);
+                        Log.d("jsonArray", candlesList.toString());
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        Log.d("exceptCandle", candlesList.toString());
                     }
                     try {
 //                        JSONArray candlesList = obj.getJSONArray("");
                         ArrayList<Candle> candles = new ArrayList<>();
+                        ArrayList<CandleEntry> candleEntry = new ArrayList<>();
                         for(int i=0;i<candlesList.length();i++){
                             JSONObject coinJson = candlesList.getJSONObject(i);
                             double price_high = coinJson.getDouble("price_high");
@@ -121,9 +125,10 @@ public class ThreadGenerator {
                             double price_open = coinJson.getDouble("price_open");
                             double price_close = coinJson.getDouble("price_close");
                             candles.add(new Candle(price_high, price_low, price_open, price_close));
+                            candleEntry.add(new CandleEntry(i+1, (float) price_high, (float) price_low, (float) price_open, (float) price_close));
                         }
 
-                        CoinActivity.setCandlesToBeAdded(candles);
+                        CoinActivity.setCandlesToBeAdded(candles, candleEntry);
                         Log.d("thread_candle_getter","finish");
                         Message message = new Message();
                         message.what = MessageResult.SUCCESSFUL;
