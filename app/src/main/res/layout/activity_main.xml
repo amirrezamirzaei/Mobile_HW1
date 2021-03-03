@@ -46,17 +46,26 @@
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="update"
-            android:id="@+id/updateButton"
-            android:onClick="update"/>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:indeterminate="true"/>
+
+
+       <Button
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:text="update"
+           android:id="@+id/updateButton"
+           android:onClick="update"/>
 
     </LinearLayout>
 

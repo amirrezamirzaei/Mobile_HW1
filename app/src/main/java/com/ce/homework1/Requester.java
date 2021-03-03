@@ -31,7 +31,6 @@ public class Requester {
         HttpUrl.Builder urlBuilder = HttpUrl.parse("https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start="+start+"&limit="+limit+"&convert=USD")
                 .newBuilder();
         String url = urlBuilder.build().toString();
-        System.out.println(url);
         final Request request = new Request.Builder().url(url)
                 .addHeader("X-CMC_PRO_API_KEY", COIN_MARKET_API_KEY)
                 .build();
@@ -54,7 +53,6 @@ public class Requester {
         }
         HttpUrl.Builder urlBuilder = HttpUrl.parse("https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?id=".concat(String.valueOf(query)).concat("&aux=logo"))
                 .newBuilder();
-        System.out.println(urlBuilder.toString());
         String url = urlBuilder.build().toString();
         final Request request = new Request.Builder().url(url)
                 .addHeader("X-CMC_PRO_API_KEY", COIN_MARKET_API_KEY)

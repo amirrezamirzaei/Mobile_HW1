@@ -54,6 +54,10 @@ public class Coin {
         return imageUrl;
     }
 
+    public String getImageUrlLowQuality(){
+        return imageUrl.replace("64*64","32*32");
+    }
+
     public Integer getId() {
         return id;
     }

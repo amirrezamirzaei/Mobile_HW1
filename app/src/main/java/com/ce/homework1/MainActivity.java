@@ -9,6 +9,7 @@ import android.os.Bundle;
 
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,11 +17,18 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.ce.homework1.model.Coin;
 import com.ce.homework1.model.MessageResult;
 
@@ -33,22 +41,23 @@ public class MainActivity extends Activity {
     private static boolean canUpdate = false;
 
     private static ArrayList<Coin> coinsToBeAdded;
+
     private Handler handler;
     private LinearLayout mainLayout;
     private Button updateButton;
-
+    private ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mainLayout = findViewById(R.id.mainLayout);
         updateButton = findViewById(R.id.updateButton);
-
+        progressBar = findViewById(R.id.progressBar);
         handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 if (msg.what == MessageResult.SUCCESSFUL) {
-                    Log.d("mido", "correct");
+                    progressBar.setProgress(progressBar.getProgress()+loadLimit);
                     addCoinToView();
                 } else {
 
@@ -57,6 +66,7 @@ public class MainActivity extends Activity {
         };
 
         if (isNetworkAvailable()) {   // connected to internet
+            makeViewIntoLoading();
             getCoins();
         } else {
             Toast.makeText(this,"Error: you aren't connected to internet",Toast.LENGTH_SHORT).show();
@@ -79,9 +89,8 @@ public class MainActivity extends Activity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Glide.with(getBaseContext()).load(coin.getImageUrl()+"lll").error(
-                                    Glide.with(getBaseContext()).load(R.drawable.no_connection)
-                            ).placeholder(R.drawable.giphy).into(logo);
+                            Glide.with(getBaseContext()).load(coin.getImageUrl()).placeholder(R.drawable.loading).error(R.drawable.no_connection).into(logo);
+                            Log.d("mido",coin.getImageUrl());
                         }
                     });
                     price.setText(String.format("%.03f", coin.getPrice())+"$");
@@ -97,10 +106,11 @@ public class MainActivity extends Activity {
                         }
                     });
                     mainLayout.addView(layoutToBeAdded);
-                    setCoinsToBeAdded(null);
                 }
                 coinsLoaded += loadLimit;
                 canUpdate = true;
+                setCoinsToBeAdded(null);
+                makeViewIntoNotLoading();
             }
         });
 
@@ -117,6 +127,7 @@ public class MainActivity extends Activity {
     public void update(View view) {
         if(canUpdate && isNetworkAvailable()){
             canUpdate = false;
+            makeViewIntoLoading();
             getCoins();
         }else if(isNetworkAvailable()==false){
             Toast.makeText(this,"Error: you aren't connected to internet",Toast.LENGTH_SHORT).show();
@@ -130,6 +141,16 @@ public class MainActivity extends Activity {
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private void makeViewIntoLoading(){
+        updateButton.setBackgroundColor(getResources().getColor(R.color.light_red));
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void makeViewIntoNotLoading(){
+        updateButton.setBackgroundColor(getResources().getColor(R.color.light_green));
+        progressBar.setVisibility(View.INVISIBLE);
     }
 
     String sample1 = "{\"status\":{\"timestamp\":\"2021-02-27T17:23:44.031Z\",\"error_code\":0,\"error_message\":null,\"elapsed\":16,\"credit_count\":1,\"notice\":null,\"total_count\":4197},\"data\":[{\"id\":1,\"name\":\"Bitcoin\",\"symbol\":\"BTC\",\"slug\":\"bitcoin\",\"num_market_pairs\":9777,\"date_added\":\"2013-04-28T00:00:00.000Z\",\"tags\":[\"mineable\",\"pow\",\"sha-256\",\"store-of-value\",\"state-channels\",\"coinbase-ventures-portfolio\",\"three-arrows-capital-portfolio\",\"polychain-capital-portfolio\"],\"max_supply\":21000000,\"circulating_supply\":18640337,\"total_supply\":18640337,\"platform\":null,\"cmc_rank\":1,\"last_updated\":\"2021-02-27T17:22:02.000Z\",\"quote\":{\"USD\":{\"price\":47142.33836536657,\"volume_24h\":49232496935.616,\"percent_change_1h\":-0.11771834,\"percent_change_24h\":-1.47838687,\"percent_change_7d\":-16.53731833,\"percent_change_30d\":47.38553034,\"market_cap\":878749074098.462,\"last_updated\":\"2021-02-27T17:22:02.000Z\"}}},{\"id\":1027,\"name\":\"Ethereum\",\"symbol\":\"ETH\",\"slug\":\"ethereum\",\"num_market_pairs\":6057,\"date_added\":\"2015-08-07T00:00:00.000Z\",\"tags\":[\"mineable\",\"pow\",\"smart-contracts\",\"coinbase-ventures-portfolio\",\"three-arrows-capital-portfolio\",\"polychain-capital-portfolio\"],\"max_supply\":null,\"circulating_supply\":114845254.249,\"total_supply\":114845254.249,\"platform\":null,\"cmc_rank\":2,\"last_updated\":\"2021-02-27T17:22:02.000Z\",\"quote\":{\"USD\":{\"price\":1481.03273875031,\"volume_24h\":30390418791.21968,\"percent_change_1h\":0.28993843,\"percent_change_24h\":-3.8196045,\"percent_change_7d\":-25.71130276,\"percent_change_30d\":10.75762384,\"market_cap\":170089581432.87216,\"last_updated\":\"2021-02-27T17:22:02.000Z\"}}}]}";

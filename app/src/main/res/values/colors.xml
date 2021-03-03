@@ -13,4 +13,7 @@
     <color name="candle_blue">#3385ff</color>
     <color name="candle_orange">#ff751a</color>
 
+    <color name="light_green">#90EE90</color>
+    <color name="light_red">#ff7f7f</color>
+
 </resources>

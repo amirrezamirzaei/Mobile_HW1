@@ -87,7 +87,9 @@ public class ThreadGenerator {
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (NullPointerException e){
-                    System.out.println("no connection");
+                    Message message = new Message();
+                    message.what = MessageResult.FAILED;
+                    handler.sendMessage(message);
                 }
             }
         });
