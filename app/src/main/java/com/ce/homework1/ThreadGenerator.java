@@ -1,6 +1,5 @@
 package com.ce.homework1;
 
-import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -17,8 +16,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import java.util.Date;
-import java.util.logging.LogRecord;
 
 import okhttp3.Response;
 
@@ -29,16 +26,12 @@ public class ThreadGenerator {
             @Override
             public void run() {
                 Response response = Requester.getInstance().RequestCoinName(start, limit);
+
                 try {
                     String coinsListString = response.body().string();
                     Log.d("thread_coin_getter",coinsListString);
                     JSONObject obj = null;
-                    try {
                         obj = new JSONObject(coinsListString);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    try {
                         JSONArray coinsList = obj.getJSONArray("data");
                         ArrayList<Integer> allID = new ArrayList<>();
                         ArrayList<Coin> coins = new ArrayList<>();
@@ -55,36 +48,24 @@ public class ThreadGenerator {
                             coins.add(new Coin(symbol,name,id,price,percentChangeHour,percentChangeDay,percentChangeWeek));
                             allID.add(id);
                         }
-
                         response = Requester.getInstance().RequestCoinsLogo(allID);   // requesting coin logos
                         String allInfo = response.body().string();
                         Log.d("thread_coin_getter",allInfo);
-                        try {
-                            obj = new JSONObject(allInfo).getJSONObject("data");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        obj = new JSONObject(allInfo).getJSONObject("data");
                         Log.d("thread_coin_getter",obj.toString());
-                        try {
-                            Log.d("thread_coin_getter",  obj.getJSONObject("1").getString("logo"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
                         for (Coin coin : coins) {
                             coin.setImageUrl(obj.getJSONObject(String.valueOf(coin.getId())).getString("logo"));
                         }
-
-
                         MainActivity.setCoinsToBeAdded(coins);
                         Log.d("thread_coin_getter","finish");
                         Message message = new Message();
                         message.what = MessageResult.SUCCESSFUL;
                         handler.sendMessage(message);
                     } catch (JSONException e) {
+                        Log.e("Json","response isn't valid, probably because free api calls are finished for today");
                         e.printStackTrace();
-                    }
-
-                } catch (IOException e) {
+                    } catch (IOException e) {
+                    Log.e("internet","response time out");
                     e.printStackTrace();
                 } catch (NullPointerException e){
                     Message message = new Message();
@@ -94,8 +75,6 @@ public class ThreadGenerator {
             }
         });
     }
-
-
 
     public static Thread getCoinDetail(Coin coin, CoinActivity.Range range, String startDate, Handler handler){
         return new Thread(new Runnable() {
@@ -147,7 +126,5 @@ public class ThreadGenerator {
             }
         });
     }
-
-
 
 }

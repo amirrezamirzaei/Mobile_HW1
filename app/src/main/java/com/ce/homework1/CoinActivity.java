@@ -17,13 +17,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+
 
 import com.ce.homework1.model.Candle;
 import com.ce.homework1.model.Coin;
 import com.ce.homework1.model.MessageResult;
 import com.github.mikephil.charting.charts.CandleStickChart;
-import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -34,7 +33,6 @@ import com.github.mikephil.charting.data.CandleEntry;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -63,7 +61,7 @@ public class CoinActivity extends Activity {
                     Log.d("done!", "correct");
                     updateUI();
                 } else {
-
+                    Toast.makeText(getApplicationContext(),"Error: you aren't connected to internet",Toast.LENGTH_SHORT).show();
                 }
             }
         };
@@ -106,7 +104,7 @@ public class CoinActivity extends Activity {
     }
 
     public void getCoinDetail(Coin coin, String date, Range range) {
-        ThreadGenerator.getCoinDetail(coin, range, date, handler).start();
+        MainActivity.executorService.submit(ThreadGenerator.getCoinDetail(coin, range, date, handler));
     }
 
     public static void setCoin(Coin coin) {
