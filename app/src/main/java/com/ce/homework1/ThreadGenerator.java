@@ -1,6 +1,9 @@
 package com.ce.homework1;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Html;
@@ -85,6 +88,19 @@ public class ThreadGenerator {
         });
     }
 
+    public static Thread getCoinsFromDataBase(int coinsLoaded, int loadLimit,Handler handler,Context context){
+        return new Thread(new Runnable() {
+            @Override
+            public void run() {
+                    DataBaseHelper dataBaseHelper = new DataBaseHelper(context);
+                    MainActivity.setCoinsToBeAdded(dataBaseHelper.getAllCoins(coinsLoaded-1,loadLimit));
+                    Message message = new Message();
+                    message.what = MessageResult.SUCCESSFUL;
+                    handler.sendMessage(message);
+            }
+        });
+    }
+
     public static Thread getCoinDetail(Coin coin, CoinActivity.Range range, String startDate, Handler handler){
         return new Thread(new Runnable() {
             @Override
@@ -135,4 +151,5 @@ public class ThreadGenerator {
             }
         });
     }
+
 }

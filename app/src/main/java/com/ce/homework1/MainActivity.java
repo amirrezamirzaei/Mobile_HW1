@@ -3,7 +3,6 @@ package com.ce.homework1;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -13,10 +12,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.Html;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -27,13 +22,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
-
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.ce.homework1.model.Coin;
 import com.ce.homework1.model.MessageResult;
 
@@ -68,23 +57,28 @@ public class MainActivity extends Activity {
         progressBar = findViewById(R.id.progressBar);
         executorService = Executors.newFixedThreadPool(DEFAULT_THREAD_POOL_SIZE);
         handler = new Handler(Looper.getMainLooper()) {
-
             @Override
             public void handleMessage(Message msg) {
                 if (msg.what == MessageResult.SUCCESSFUL) {
                     progressBar.setProgress(progressBar.getProgress() + loadLimit);
-                    addCoinToView();
+                    if(coinsToBeAdded.size()!=0) {
+                        addCoinToView();
+                    }else{
+                        Toast.makeText(getBaseContext(), "Error: no more coins to show", Toast.LENGTH_SHORT).show();
+                        update(null);
+                    }
                 } else {
-
+                    Toast.makeText(getBaseContext(), "Error: make sure your connection is stable", Toast.LENGTH_SHORT).show();
                 }
             }
         };
+        makeViewIntoNotLoading();
         if (isNetworkAvailable()) {   // connected to internet
             makeViewIntoLoading();
             getCoins();
         } else {
-            Toast.makeText(this, "Error: you aren't connected to internet", Toast.LENGTH_SHORT).show();
-            /*TODO update coins from database you only need to get coin from database and call setcoinstobeadded*/
+            Toast.makeText(this, "Error: you aren't connected to internet last updated data will be shown", Toast.LENGTH_SHORT).show();
+            update(null);
         }
     }
 
@@ -93,7 +87,11 @@ public class MainActivity extends Activity {
     }
 
     public void getCoins() {
-        executorService.submit( ThreadGenerator.getCoins(coinsLoaded, loadLimit, handler));
+        executorService.submit(ThreadGenerator.getCoins(coinsLoaded, loadLimit, handler));
+    }
+
+    public void getCoinsFromDataBase() {
+        executorService.submit(ThreadGenerator.getCoinsFromDataBase(coinsLoaded, loadLimit, handler,getApplicationContext()));
     }
 
     public static void setCoinsToBeAdded(ArrayList<Coin> coinsToBeAdded) {
@@ -106,7 +104,10 @@ public class MainActivity extends Activity {
             makeViewIntoLoading();
             getCoins();
         } else if (isNetworkAvailable() == false) {
-            Toast.makeText(this, "Error: you aren't connected to internet", Toast.LENGTH_SHORT).show();
+            canUpdate = false;
+            makeViewIntoLoading();
+            getCoinsFromDataBase();
+            Toast.makeText(this, "Error: you aren't connected to internet last updated data will be shown", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Error: please wait before requesting updates", Toast.LENGTH_SHORT).show();
         }
@@ -139,6 +140,7 @@ public class MainActivity extends Activity {
         }
         @Override
         public void run() {
+                DataBaseHelper dataBaseHelper = new DataBaseHelper(mainActivity.get().getBaseContext());
                 for (Coin coin : coinsToBeAdded) {
                     View layoutToBeAdded = LayoutInflater.from(mainActivity.get()).inflate(R.layout.fragment_coin,mainLayout.get() , false);
                     RelativeLayout relativeLayout = (RelativeLayout) ((LinearLayout) layoutToBeAdded.getRootView()).getChildAt(0);
@@ -168,8 +170,11 @@ public class MainActivity extends Activity {
                         }
                     });
                     mainLayout.get().addView(layoutToBeAdded);
+                    coin.setId(coinsLoaded);
+                    if(mainActivity.get().isNetworkAvailable())
+                    dataBaseHelper.insertCoin(coin);
+                    coinsLoaded ++;
                 }
-                coinsLoaded += loadLimit;
                 canUpdate = true;
                 setCoinsToBeAdded(null);
                 mainActivity.get().makeViewIntoNotLoading();
