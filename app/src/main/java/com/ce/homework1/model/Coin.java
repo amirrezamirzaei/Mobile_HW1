@@ -1,5 +1,13 @@
 package com.ce.homework1.model;
 
+import android.graphics.Color;
+import android.graphics.ColorSpace;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+
+import com.ce.homework1.R;
+
 public class Coin {
     private String symbol;
     private String name;
@@ -60,5 +68,9 @@ public class Coin {
 
     public Integer getId() {
         return id;
+    }
+
+    public static String getColoredSpanned(String text) {
+        return "<font color=" + (text.contains("-") ? "#ff7f7f":"#90EE90") + ">" + text + "</font>";
     }
 }

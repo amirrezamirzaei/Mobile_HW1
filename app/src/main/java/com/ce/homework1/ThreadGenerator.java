@@ -1,9 +1,18 @@
 package com.ce.homework1;
 
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Html;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.ce.homework1.model.Candle;
 import com.ce.homework1.model.Coin;
 import com.ce.homework1.model.MessageResult;
@@ -126,5 +135,4 @@ public class ThreadGenerator {
             }
         });
     }
-
 }

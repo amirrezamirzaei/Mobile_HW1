@@ -3,6 +3,7 @@ package com.ce.homework1;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -11,6 +12,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +37,7 @@ import com.bumptech.glide.request.target.Target;
 import com.ce.homework1.model.Coin;
 import com.ce.homework1.model.MessageResult;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -62,6 +68,7 @@ public class MainActivity extends Activity {
         progressBar = findViewById(R.id.progressBar);
         executorService = Executors.newFixedThreadPool(DEFAULT_THREAD_POOL_SIZE);
         handler = new Handler(Looper.getMainLooper()) {
+
             @Override
             public void handleMessage(Message msg) {
                 if (msg.what == MessageResult.SUCCESSFUL) {
@@ -82,44 +89,7 @@ public class MainActivity extends Activity {
     }
 
     public void addCoinToView() {
-        mainLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                for (Coin coin : coinsToBeAdded) {
-                    View layoutToBeAdded = LayoutInflater.from(MainActivity.this).inflate(R.layout.fragment_coin, mainLayout, false);
-                    RelativeLayout relativeLayout = (RelativeLayout) ((LinearLayout) layoutToBeAdded.getRootView()).getChildAt(0);
-                    ImageView logo = (ImageView) relativeLayout.getChildAt(0);
-                    TextView name = (TextView) relativeLayout.getChildAt(1);
-                    TextView price = (TextView) relativeLayout.getChildAt(2);
-                    TextView percentDayHour = (TextView) relativeLayout.getChildAt(3);
-                    TextView percentWeek = (TextView) relativeLayout.getChildAt(4);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Glide.with(getBaseContext()).load(coin.getImageUrl()).placeholder(R.drawable.loading).error(R.drawable.no_connection).into(logo);
-                        }
-                    });
-                    price.setText(String.format("%.03f", coin.getPrice()) + "$");
-                    name.setText(coin.getName() + " | " + coin.getSymbol());
-                    percentDayHour.setText("1h:" + String.format("%.02f", coin.getPercentChangeHour()) + "%  " + "1D:" + String.format("%.02f", coin.getPercentChangeDay()) + "%");
-                    percentWeek.setText("7D:" + String.format("%.02f", coin.getPercentChangeWeek()) + "%");
-                    layoutToBeAdded.getRootView().setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            CoinActivity.setCoin(coin);
-                            Intent i = new Intent(MainActivity.this, CoinActivity.class);
-                            startActivity(i);
-                        }
-                    });
-                    mainLayout.addView(layoutToBeAdded);
-                }
-                coinsLoaded += loadLimit;
-                canUpdate = true;
-                setCoinsToBeAdded(null);
-                makeViewIntoNotLoading();
-            }
-        });
-
+           mainLayout.post(new AddCoinToView(this,mainLayout));
     }
 
     public void getCoins() {
@@ -159,4 +129,50 @@ public class MainActivity extends Activity {
         progressBar.setVisibility(View.INVISIBLE);
     }
 
+    private static final class AddCoinToView implements Runnable{
+        private  WeakReference<MainActivity> mainActivity;
+        private  WeakReference<LinearLayout> mainLayout;
+
+        AddCoinToView(MainActivity mainActivity,LinearLayout mainLayout){
+            this.mainActivity = new WeakReference<MainActivity>(mainActivity);
+            this.mainLayout = new WeakReference<LinearLayout>(mainLayout);
+        }
+        @Override
+        public void run() {
+                for (Coin coin : coinsToBeAdded) {
+                    View layoutToBeAdded = LayoutInflater.from(mainActivity.get()).inflate(R.layout.fragment_coin,mainLayout.get() , false);
+                    RelativeLayout relativeLayout = (RelativeLayout) ((LinearLayout) layoutToBeAdded.getRootView()).getChildAt(0);
+                    ImageView logo = (ImageView) relativeLayout.getChildAt(0);
+                    TextView name = (TextView) relativeLayout.getChildAt(1);
+                    TextView price = (TextView) relativeLayout.getChildAt(2);
+                    TextView percentDayHour = (TextView) relativeLayout.getChildAt(3);
+                    TextView percentWeek = (TextView) relativeLayout.getChildAt(4);
+                    mainActivity.get().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Glide.with(mainActivity.get()).load(coin.getImageUrl()).placeholder(R.drawable.loading).error(R.drawable.no_connection).into(logo);
+                        }
+                    });
+                    price.setText(String.format("%.03f", coin.getPrice()) + "$");
+                    name.setText(coin.getName() + " | " + coin.getSymbol());
+                    percentDayHour.setText(Html.fromHtml(
+                            "1h:" + Coin.getColoredSpanned(String.format("%.02f", coin.getPercentChangeHour())) + " %" +
+                                    "1D:" + Coin.getColoredSpanned(String.format("%.02f", coin.getPercentChangeDay())) + "%"));
+                    percentWeek.setText(Html.fromHtml("7D:" + Coin.getColoredSpanned(String.format("%.02f", coin.getPercentChangeWeek())) + "%"));
+                    layoutToBeAdded.getRootView().setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            CoinActivity.setCoin(coin);
+                            Intent i = new Intent(mainActivity.get(), CoinActivity.class);
+                            mainActivity.get().startActivity(i);
+                        }
+                    });
+                    mainLayout.get().addView(layoutToBeAdded);
+                }
+                coinsLoaded += loadLimit;
+                canUpdate = true;
+                setCoinsToBeAdded(null);
+                mainActivity.get().makeViewIntoNotLoading();
+        }
+    }
 }

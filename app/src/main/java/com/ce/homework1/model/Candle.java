@@ -1,6 +1,5 @@
 package com.ce.homework1.model;
 
-import com.github.mikephil.charting.data.CandleData;
 
 public class Candle {
 
