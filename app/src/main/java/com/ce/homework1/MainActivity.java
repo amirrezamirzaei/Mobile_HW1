@@ -152,7 +152,9 @@ public class MainActivity extends Activity {
                     mainActivity.get().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Glide.with(mainActivity.get()).load(coin.getImageUrl()).placeholder(R.drawable.loading).error(R.drawable.no_connection).into(logo);
+                            System.out.println(coin.getImageUrl());
+//                            Glide.with(mainActivity.get()).load(coin.getImageUrl()).placeholder(R.drawable.loading).error(R.drawable.no_connection).into(logo);
+                            Glide.with(mainActivity.get()).load(coin.getImageUrl()).error(R.drawable.no_connection).into(logo);
                         }
                     });
                     price.setText(String.format("%.03f", coin.getPrice()) + "$");

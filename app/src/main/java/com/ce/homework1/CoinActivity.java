@@ -124,7 +124,7 @@ public class CoinActivity extends Activity {
 
     public void updateUI() {
 
-        new Thread(new Runnable() {
+        MainActivity.executorService.submit(new Runnable() {
             @Override
             public void run() {
                 CandleStickChart candleStickChart = findViewById(R.id.candle_stick_chart);
@@ -174,13 +174,19 @@ public class CoinActivity extends Activity {
                 CandleData data = new CandleData(set1);
 
                 // set data
-                candleStickChart.setData(data);
-                candleStickChart.invalidate();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        candleStickChart.setData(data);
+                        candleStickChart.invalidate();
 
-                canUpdate = true;
-                progressBar.setVisibility(View.INVISIBLE);
+                        canUpdate = true;
+                        progressBar.setVisibility(View.INVISIBLE);
+                    }
+                });
+
             }
-        }).start();
+        });
     }
 
     private boolean isNetworkAvailable() {
